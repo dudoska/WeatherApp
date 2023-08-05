@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/backround_day"
+    tools:context=".Activities.SettingsActivity">
+
+    <TextView
+        android:id="@+id/settings"
+        android:layout_width="269dp"
+        android:layout_height="79dp"
+        android:layout_marginStart="71dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="71dp"
+        android:layout_marginBottom="65dp"
+        android:text="@string/action_settings"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/unit_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/unit"
+        android:layout_width="71dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="121dp"
+        android:layout_marginEnd="340dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Unit:"
+        android:textAlignment="textStart"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        app:layout_constraintBottom_toTopOf="@+id/unit_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/unit_spinner"
+        android:layout_width="409dp"
+        android:layout_height="62dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/start_location"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/unit" />
+
+    <TextView
+        android:id="@+id/start_location"
+        android:layout_width="200dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="210dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Start location:"
+        android:textAlignment="textStart"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/unit_spinner" />
+
+    <Spinner
+        android:id="@+id/start_location_spinner"
+        android:layout_width="409dp"
+        android:layout_height="62dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_location" />
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="74dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginBottom="422dp"
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_location_spinner" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">WeatherApp2</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_home">Start location</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Add locations</string>
+
+    <!--Settings Activity-->
+    <string name="action_settings">Settings</string>
+    <!--<string name="action_settings_ru">Настройки</string>-->
+    <!--<string name="unit">Unit:</string>-->
+    <!--<string name="unit_ru">Единица:</string>-->
+    <!--<string name="language">Language:</string>-->
+    <!--<string name="language_ru">Язык:</string>-->
+    <!--<string name="time_update">Time update:</string>-->
+    <!--<string name="time_update_ru">Время обновления:</string>-->
+</resources>
