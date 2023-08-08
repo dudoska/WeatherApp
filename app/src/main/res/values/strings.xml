@@ -8,7 +8,7 @@
 
     <string name="menu_home">Start location</string>
     <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Add locations</string>
+    <string name="menu_slideshow">Favorite locations</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>
