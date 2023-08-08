@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.example.weatherappremaster.Classes.ForecastAdapter;
@@ -20,6 +21,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +44,30 @@ public class MoreInfoActivity extends AppCompatActivity {
         String JS = intent.getStringExtra("forecastDay");
         JsonObject forecastDay = new JsonParser().parse(JS).getAsJsonObject();
 
-        SharedPreferences preferences = getSharedPreferences("settings", Context.MODE_PRIVATE);
-        String unit = preferences.getString("unit", "°C");
+        try {
+            File cacheDir = getCacheDir();
+            File data_file = new File(cacheDir, "data.json");
+            BufferedReader reader = new BufferedReader(new FileReader(data_file));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
+            reader.close();
 
-        update_UI(forecastDay, unit);
+            JSONObject json = new JSONObject(jsonString.toString());
+            String unit = json.getString("unit");
+            updateUI(forecastDay, unit);
+
+        } catch (IOException e) {
+            Log.e("TAG", "Error: " + e);
+        } catch (JSONException e) {
+            Log.e("TAG", "Error: " + e);
+        }
     }
 
     @SuppressLint("SetTextI18n")
-    private void update_UI(JsonObject forecastDay, String unit){
+    private void updateUI(JsonObject forecastDay, String unit){
         binding.maxtempC.setText("MaxTemp: " + forecastDay.getAsJsonObject("day").get((unit.equals("°C")) ? "maxtemp_c" : "maxtemp_f").toString() + " " + unit);
         binding.mintempC.setText("MinTemp: " + forecastDay.getAsJsonObject("day").get((unit.equals("°C")) ? "mintemp_c" : "mintemp_f").toString() + " " + unit);
         binding.avgtempC.setText("AvgTemp: " + forecastDay.getAsJsonObject("day").get((unit.equals("°C")) ? "avgtemp_c" : "avgtemp_f").toString() + " " + unit);

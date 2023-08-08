@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +47,30 @@ public class HomeFragment extends Fragment {
         View root = binding.getRoot();
 
         Intent intent = getActivity().getIntent();
-        String JS = intent.getStringExtra("data");
+        String JS = intent.getStringExtra("data_weather");
         JsonObject data = new JsonParser().parse(JS).getAsJsonObject();
 
-        SharedPreferences preferences = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
-        String unit = preferences.getString("unit", "°C");
+        try {
+            File cacheDir = requireContext().getApplicationContext().getCacheDir();
+            File data_file = new File(cacheDir, "data.json");
+            BufferedReader reader = new BufferedReader(new FileReader(data_file));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
+            reader.close();
 
-        updateUI(data, unit);
+            JSONObject json = new JSONObject(jsonString.toString());
+            String unit = json.getString("unit");
+            updateUI(data, unit);
+
+        } catch (IOException e) {
+            Log.e("TAG", "Error: " + e);
+        } catch (JSONException e) {
+            Log.e("TAG", "Error: " + e);
+        }
+
         return root;
     }
 

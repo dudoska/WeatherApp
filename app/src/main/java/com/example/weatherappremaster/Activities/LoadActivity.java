@@ -35,7 +35,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -55,21 +62,45 @@ public class LoadActivity extends AppCompatActivity {
         locationRequest.setInterval(5000);
         locationRequest.setFastestInterval(2000);
 
-        SharedPreferences preferences = getSharedPreferences("settings", Context.MODE_PRIVATE);
-        Map<String, ?> allData = preferences.getAll();
-        if (!allData.isEmpty()) {
-            if (preferences.getString("start_location", "current_location").equals("current_location")){
-                get_current_weather();
-            }
-            else {
-                get_location_weather(preferences.getString("start_location", "current_location"));
+        File cacheDir = getCacheDir();
+        File data_file = new File(cacheDir, "data.json");
+
+        if (data_file.exists()){
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(data_file));
+                StringBuilder jsonString = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonString.append(line);
+                }
+                reader.close();
+
+                JSONObject json = new JSONObject(jsonString.toString());
+
+                JSONObject locations = json.getJSONObject("locations");
+                String startLocation = locations.getString("start_location");
+
+                if (startLocation.equals("current_location")){
+                    get_current_weather();
+                }
+                else {
+                    get_location_weather(startLocation);
+                }
+
+            } catch (IOException e) {
+                Log.e("TAG", "Error: " + e);
+            } catch (JSONException e) {
+                Log.e("TAG", "Error: " + e);
             }
         }
         else {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("unit", "°C");
-            editor.putString("start_location", "current_location");
-            editor.apply();
+            try {
+                FileWriter writer = new FileWriter(data_file);
+                writer.write("{\"unit\": \"°C\", \"themes\": \"light\", \"locations\": {\"start_location\": \"current_location\"}}");
+                writer.close();
+            } catch (IOException e) {
+                Log.e("TAG", "Error: " + e);
+            }
             get_current_weather();
         }
 
@@ -101,7 +132,7 @@ public class LoadActivity extends AppCompatActivity {
                         JsonObject data = JsonParser.parseString(json).getAsJsonObject();
 
                         Intent intent = new Intent(LoadActivity.this, MainActivity.class);
-                        intent.putExtra("data", data.toString());
+                        intent.putExtra("data_weather", data.toString());
                         startActivity(intent);
                     } else {
                         Log.e("TAG", String.valueOf(responseCode));
@@ -151,7 +182,7 @@ public class LoadActivity extends AppCompatActivity {
                                             JsonObject data = JsonParser.parseString(json).getAsJsonObject();
 
                                             Intent intent = new Intent(LoadActivity.this, MainActivity.class);
-                                            intent.putExtra("data", data.toString());
+                                            intent.putExtra("data_weather", data.toString());
                                             startActivity(intent);
                                         } else {
                                             Log.e("TAG", String.valueOf(responseCode));
