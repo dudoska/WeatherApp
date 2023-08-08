@@ -30,113 +30,133 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
 
 // https://www.tutorialspoint.com/how-to-fix-android-os-networkonmainthreadexception
 
 public class SlideshowFragment extends Fragment {
     private FragmentSlideshowBinding binding;
     private String TOKEN = "ae8905d694e64e0c8dc152219231007";
-    SharedPreferences preferences = SlideshowFragment.this.getActivity().getSharedPreferences("sc", Context.MODE_PRIVATE);
-    Map<String, ?> allData = preferences.getAll();
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         SlideshowViewModel slideshowViewModel = new ViewModelProvider(this).get(SlideshowViewModel.class);
         binding = FragmentSlideshowBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        if (!allData.isEmpty()) {
-            updateLV(allData);
-        }
+        updateLV();
 
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MyTask().execute();
+//                new MyTask().execute();
             }
         });
         
         return root;
     }
 
-    public class MyTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            String result = null;
-
-            String name = binding.cityED.getText().toString();
-            if (name != null){
-                try {
-                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + name + "&aqi=no");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        String line;
-                        StringBuilder response = new StringBuilder();
-
-                        while ((line = reader.readLine()) != null) {
-                            response.append(line);
-                        }
-                        reader.close();
-
-                        String json = response.toString();
-                        JsonObject data = JsonParser.parseString(json).getAsJsonObject();
-                        String city = data.getAsJsonObject("location").get("name").getAsString();
-                        String location = data.getAsJsonObject("location").get("lat").getAsString() + " " + data.getAsJsonObject("location").get("lon").getAsString();
-
-                        if (!allData.containsKey(city)) {
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString(city, location);
-                            editor.apply();
-                            result = "0";
-                        }
-                        else {
-                            result = "3";
-                        }
-
-                    } else {
-                        result = "2";
-                    }
-                } catch (Exception e) {
-                    Log.e("TAG", "Error:" + e);
-                }
-            }
-            else {
-                result = "1";
-            }
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            if (result == "1"){
-                Toast.makeText(getContext(), "The field is empty", Toast.LENGTH_SHORT).show();
-            } else if (result == "2") {
-                Toast.makeText(getContext(), "Could not find city", Toast.LENGTH_SHORT).show();
-            } else if (result == "3") {
-                Toast.makeText(getContext(), "This city is already in the favorites", Toast.LENGTH_SHORT).show();
-            } else if (result == "0") {
-                updateLV(allData);
-                Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+//    public class MyTask extends AsyncTask<Void, Void, String> {
+//        @Override
+//        protected String doInBackground(Void... voids) {
+//            String result = null;
+//
+//            String name = binding.cityED.getText().toString();
+//            if (name != null){
+//                try {
+//                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + name + "&aqi=no");
+//                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//                    connection.setRequestMethod("GET");
+//
+//                    int responseCode = connection.getResponseCode();
+//                    if (responseCode == HttpURLConnection.HTTP_OK) {
+//                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//                        String line;
+//                        StringBuilder response = new StringBuilder();
+//
+//                        while ((line = reader.readLine()) != null) {
+//                            response.append(line);
+//                        }
+//                        reader.close();
+//
+//                        String json = response.toString();
+//                        JsonObject data = JsonParser.parseString(json).getAsJsonObject();
+//                        String city = data.getAsJsonObject("location").get("name").getAsString();
+//                        String location = data.getAsJsonObject("location").get("lat").getAsString() + " " + data.getAsJsonObject("location").get("lon").getAsString();
+//
+//                        try {
+//                           BufferedReader reader_data = new BufferedReader(new FileReader(data_file));
+//                           StringBuilder jsonString = new StringBuilder();
+//                           String line2;
+//                           while ((line2 = reader_data.readLine()) != null) {
+//                               jsonString.append(line2);
+//                           }
+//                           reader_data.close();
+//                           JSONObject json2 = new JSONObject(jsonString.toString());
+//                           JSONObject locations = json2.getJSONObject("locations");
+//
+//                           boolean hasObject = locations.has(city);
+//                           if (hasObject) {
+//                               result = "3";
+//                           } else {
+//                               locations.put(city, location);
+//                               FileWriter fileWriter = new FileWriter(data_file);
+//                               fileWriter.write(json.toString());
+//                               fileWriter.close();
+//                               result = "0";
+//                           }
+//
+//                          } catch (IOException e) {
+//                              Log.e("TAG", "Error:" + e);
+//                          } catch (JSONException e) {
+//                              Log.e("TAG", "Error:" + e);
+//                          }
+//                    } else {
+//                        result = "2";
+//                    }
+//                } catch (Exception e) {
+//                    Log.e("TAG", "Error:" + e);
+//                }
+//            }
+//            else {
+//                result = "1";
+//            }
+//
+//            return result;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result) {
+//            super.onPostExecute(result);
+//            if (result == "1"){
+//                Toast.makeText(getContext(), "The field is empty", Toast.LENGTH_SHORT).show();
+//            } else if (result == "2") {
+//                Toast.makeText(getContext(), "Could not find city", Toast.LENGTH_SHORT).show();
+//            } else if (result == "3") {
+//                Toast.makeText(getContext(), "This city is already in the favorites", Toast.LENGTH_SHORT).show();
+//            } else if (result == "0") {
+//                updateLV();
+//                Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
     @Override
     public void onDestroyView() {
@@ -144,13 +164,34 @@ public class SlideshowFragment extends Fragment {
         binding = null;
     }
 
-    public void updateLV(Map<String, ?> allData){
-        List<String> sc = new ArrayList<>();
-        for (Map.Entry<String, ?> entry : allData.entrySet()) {
-            String key = (String) entry.getKey();
-            sc.add(key);
+    public void updateLV(){
+        try {
+            File cacheDir = requireContext().getApplicationContext().getCacheDir();
+            File data_file = new File(cacheDir, "data.json");
+
+            FileReader reader = new FileReader(data_file);
+            StringBuilder jsonString = new StringBuilder();
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                jsonString.append((char) ch);
+            }
+            reader.close();
+
+            JSONObject jsonObject = new JSONObject(jsonString.toString());
+            JSONObject locations = jsonObject.getJSONObject("locations");
+            Iterator<String> keys = locations.keys();
+            ArrayList<String> names = new ArrayList<>();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.equals("start_location")){
+                   names.add(key);
+                }
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, names);
+            binding.scLV.setAdapter(adapter);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(SlideshowFragment.this.getActivity(), android.R.layout.simple_list_item_1, sc);
-        binding.scLV.setAdapter(adapter);
     }
 }
