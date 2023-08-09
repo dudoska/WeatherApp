@@ -66,97 +66,99 @@ public class SlideshowFragment extends Fragment {
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                new MyTask().execute();
+                new MyTask().execute();
             }
         });
         
         return root;
     }
 
-//    public class MyTask extends AsyncTask<Void, Void, String> {
-//        @Override
-//        protected String doInBackground(Void... voids) {
-//            String result = null;
-//
-//            String name = binding.cityED.getText().toString();
-//            if (name != null){
-//                try {
-//                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + name + "&aqi=no");
-//                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//                    connection.setRequestMethod("GET");
-//
-//                    int responseCode = connection.getResponseCode();
-//                    if (responseCode == HttpURLConnection.HTTP_OK) {
-//                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//                        String line;
-//                        StringBuilder response = new StringBuilder();
-//
-//                        while ((line = reader.readLine()) != null) {
-//                            response.append(line);
-//                        }
-//                        reader.close();
-//
-//                        String json = response.toString();
-//                        JsonObject data = JsonParser.parseString(json).getAsJsonObject();
-//                        String city = data.getAsJsonObject("location").get("name").getAsString();
-//                        String location = data.getAsJsonObject("location").get("lat").getAsString() + " " + data.getAsJsonObject("location").get("lon").getAsString();
-//
-//                        try {
-//                           BufferedReader reader_data = new BufferedReader(new FileReader(data_file));
-//                           StringBuilder jsonString = new StringBuilder();
-//                           String line2;
-//                           while ((line2 = reader_data.readLine()) != null) {
-//                               jsonString.append(line2);
-//                           }
-//                           reader_data.close();
-//                           JSONObject json2 = new JSONObject(jsonString.toString());
-//                           JSONObject locations = json2.getJSONObject("locations");
-//
-//                           boolean hasObject = locations.has(city);
-//                           if (hasObject) {
-//                               result = "3";
-//                           } else {
-//                               locations.put(city, location);
-//                               FileWriter fileWriter = new FileWriter(data_file);
-//                               fileWriter.write(json.toString());
-//                               fileWriter.close();
-//                               result = "0";
-//                           }
-//
-//                          } catch (IOException e) {
-//                              Log.e("TAG", "Error:" + e);
-//                          } catch (JSONException e) {
-//                              Log.e("TAG", "Error:" + e);
-//                          }
-//                    } else {
-//                        result = "2";
-//                    }
-//                } catch (Exception e) {
-//                    Log.e("TAG", "Error:" + e);
-//                }
-//            }
-//            else {
-//                result = "1";
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String result) {
-//            super.onPostExecute(result);
-//            if (result == "1"){
-//                Toast.makeText(getContext(), "The field is empty", Toast.LENGTH_SHORT).show();
-//            } else if (result == "2") {
-//                Toast.makeText(getContext(), "Could not find city", Toast.LENGTH_SHORT).show();
-//            } else if (result == "3") {
-//                Toast.makeText(getContext(), "This city is already in the favorites", Toast.LENGTH_SHORT).show();
-//            } else if (result == "0") {
-//                updateLV();
-//                Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
+    public class MyTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... voids) {
+            String result = null;
+            File cacheDir = requireContext().getApplicationContext().getCacheDir();
+            File data_file = new File(cacheDir, "data.json");
+
+            String name = binding.cityED.getText().toString();
+            if (!name.equals("")){
+                try {
+                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + name + "&aqi=no");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        String line;
+                        StringBuilder response = new StringBuilder();
+
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        reader.close();
+
+                        String json = response.toString();
+                        JsonObject data = JsonParser.parseString(json).getAsJsonObject();
+                        String city = data.getAsJsonObject("location").get("name").getAsString();
+                        String location = data.getAsJsonObject("location").get("lat").getAsString() + " " + data.getAsJsonObject("location").get("lon").getAsString();
+
+                        try {
+                           BufferedReader reader_data = new BufferedReader(new FileReader(data_file));
+                           StringBuilder jsonString = new StringBuilder();
+                           String line2;
+                           while ((line2 = reader_data.readLine()) != null) {
+                               jsonString.append(line2);
+                           }
+                           reader_data.close();
+                           JSONObject json2 = new JSONObject(jsonString.toString());
+                           JSONObject locations = json2.getJSONObject("locations");
+
+                           boolean hasObject = locations.has(city);
+                           if (hasObject) {
+                               result = "3";
+                           } else {
+                               locations.put(city, location);
+                               FileWriter fileWriter = new FileWriter(data_file);
+                               fileWriter.write(json2.toString());
+                               fileWriter.close();
+                               result = "0";
+                           }
+
+                          } catch (IOException e) {
+                              Log.e("TAG", "Error:" + e);
+                          } catch (JSONException e) {
+                              Log.e("TAG", "Error:" + e);
+                          }
+                    } else {
+                        result = "2";
+                    }
+                } catch (Exception e) {
+                    Log.e("TAG", "Error:" + e);
+                }
+            }
+            else {
+                result = "1";
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result == "1"){
+                Toast.makeText(getContext(), "The field is empty", Toast.LENGTH_SHORT).show();
+            } else if (result == "2") {
+                Toast.makeText(getContext(), "Could not find city", Toast.LENGTH_SHORT).show();
+            } else if (result == "3") {
+                Toast.makeText(getContext(), "This city is already in the favorites", Toast.LENGTH_SHORT).show();
+            } else if (result == "0") {
+                updateLV();
+                Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     public void onDestroyView() {
