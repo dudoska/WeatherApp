@@ -23,11 +23,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
 ActivitySettingsBinding binding;
 String unit_default, startLocation_default;
+String[] locations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,26 @@ String unit_default, startLocation_default;
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
         String[] unit = {"°C", "°F"};
-        String[] locations = {"Current location"};
+
+        try {
+            File cacheDir = getCacheDir();
+            File data_file = new File(cacheDir, "data.json");
+            BufferedReader reader = new BufferedReader(new FileReader(data_file));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
+            reader.close();
+
+            JSONObject json = new JSONObject(jsonString.toString());
+
+            unit_default = json.getString("unit");
+        } catch (IOException e) {
+            Log.e("TAG", "Error: " + e);
+        } catch (JSONException e) {
+            Log.e("TAG", "Error: " + e);
+        }
 
         try {
             File cacheDir = getCacheDir();
@@ -51,11 +74,24 @@ String unit_default, startLocation_default;
             JSONObject json = new JSONObject(jsonString.toString());
             JSONObject locals = json.getJSONObject("locations");
 
-            unit_default = json.getString("unit");
-            startLocation_default = locals.getString("start_location");
-        } catch (IOException e) {
-            Log.e("TAG", "Error: " + e);
-        } catch (JSONException e) {
+            Iterator<String> keys = locals.keys();
+            ArrayList<String> valuesList = new ArrayList<>();
+
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.equals("start_location")){
+                    valuesList.add(key);
+                }
+                else{
+                    Log.d("TAG", key);
+                    startLocation_default = locals.getString(key);
+                    valuesList.add("current_location");
+                }
+            }
+            locations = valuesList.toArray(new String[0]);
+            Log.i("TAG", Arrays.toString(locations));
+
+        } catch (IOException | JSONException e) {
             Log.e("TAG", "Error: " + e);
         }
 
@@ -67,6 +103,46 @@ String unit_default, startLocation_default;
         ArrayAdapter<String> locations_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, locations);
         locations_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.startLocationSpinner.setAdapter(locations_adapter);
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].equals(startLocation_default)) {
+                binding.startLocationSpinner.setSelection(i);
+            }
+        }
+
+        binding.startLocationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (!Objects.equals(startLocation_default, adapterView.getItemAtPosition(i).toString())){
+                    try {
+                        File cacheDir = getCacheDir();
+                        File data_file = new File(cacheDir, "data.json");
+                        BufferedReader reader = new BufferedReader(new FileReader(data_file));
+                        StringBuilder jsonString = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            jsonString.append(line);
+                        }
+                        reader.close();
+
+                        JSONObject json = new JSONObject(jsonString.toString());
+
+                        JSONObject locat = json.getJSONObject("locations");
+                        locat.put("start_location", adapterView.getItemAtPosition(i).toString());
+
+                        FileWriter fileWriter = new FileWriter(data_file);
+                        fileWriter.write(json.toString());
+                        fileWriter.close();
+                    } catch (IOException | JSONException e) {
+                        Log.e("TAG", "Error: " + e);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         binding.unitSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -89,9 +165,7 @@ String unit_default, startLocation_default;
                         FileWriter fileWriter = new FileWriter(data_file);
                         fileWriter.write(json.toString());
                         fileWriter.close();
-                    } catch (IOException e) {
-                        Log.e("TAG", "Error: " + e);
-                    } catch (JSONException e) {
+                    } catch (IOException | JSONException e) {
                         Log.e("TAG", "Error: " + e);
                     }
                 }
