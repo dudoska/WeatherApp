@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,8 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
-// https://www.tutorialspoint.com/how-to-fix-android-os-networkonmainthreadexception
-
 public class SlideshowFragment extends Fragment {
     private FragmentSlideshowBinding binding;
     private String TOKEN = "ae8905d694e64e0c8dc152219231007";
@@ -62,6 +63,7 @@ public class SlideshowFragment extends Fragment {
         View root = binding.getRoot();
 
         updateLV();
+        registerForContextMenu(binding.scLV);
 
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +73,53 @@ public class SlideshowFragment extends Fragment {
         });
         
         return root;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, 1, 0, "Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int position = info.position;
+
+        Object it = binding.scLV.getItemAtPosition(position);
+        String name = it.toString();
+
+        switch (item.getItemId()) {
+            case 1:
+                try {
+                    File cacheDir = requireContext().getApplicationContext().getCacheDir();
+                    File data_file = new File(cacheDir, "data.json");
+
+                    BufferedReader reader_data = new BufferedReader(new FileReader(data_file));
+                    StringBuilder jsonString = new StringBuilder();
+                    String line2;
+                    while ((line2 = reader_data.readLine()) != null) {
+                        jsonString.append(line2);
+                    }
+                    reader_data.close();
+                    JSONObject json = new JSONObject(jsonString.toString());
+
+                    json.getJSONObject("locations").remove(name);
+
+                    FileWriter fileWriter = new FileWriter(data_file);
+                    fileWriter.write(json.toString());
+                    fileWriter.close();
+
+                    updateLV();
+                    Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
+
+                } catch (IOException | JSONException e) {
+                    Log.e("TAG", "Error:" + e);
+                }
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     public class MyTask extends AsyncTask<Void, Void, String> {
@@ -155,6 +204,7 @@ public class SlideshowFragment extends Fragment {
                 Toast.makeText(getContext(), "This city is already in the favorites", Toast.LENGTH_SHORT).show();
             } else if (result == "0") {
                 updateLV();
+                binding.cityED.setText("");
                 Toast.makeText(getContext(), "Done!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -193,7 +243,7 @@ public class SlideshowFragment extends Fragment {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, names);
             binding.scLV.setAdapter(adapter);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "Error:" + e);
         }
     }
 }
