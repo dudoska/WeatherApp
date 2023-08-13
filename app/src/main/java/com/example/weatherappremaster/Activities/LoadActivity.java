@@ -62,35 +62,43 @@ public class LoadActivity extends AppCompatActivity {
         locationRequest.setInterval(5000);
         locationRequest.setFastestInterval(2000);
 
+        Intent intent = getIntent();
+        String return_city = intent.getStringExtra("return_city");
+
         File cacheDir = getCacheDir();
         File data_file = new File(cacheDir, "data.json");
 
         if (data_file.exists()){
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(data_file));
-                StringBuilder jsonString = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    jsonString.append(line);
+            if (return_city == null){
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(data_file));
+                    StringBuilder jsonString = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jsonString.append(line);
+                    }
+                    reader.close();
+
+                    JSONObject json = new JSONObject(jsonString.toString());
+
+                    JSONObject locations = json.getJSONObject("locations");
+                    String startLocation = locations.getString("start_location");
+
+                    if (startLocation.equals("current_location")){
+                        get_current_weather();
+                    }
+                    else {
+                        get_location_weather(startLocation);
+                    }
+
+                } catch (IOException e) {
+                    Log.e("TAG", "Error: " + e);
+                } catch (JSONException e) {
+                    Log.e("TAG", "Error: " + e);
                 }
-                reader.close();
-
-                JSONObject json = new JSONObject(jsonString.toString());
-
-                JSONObject locations = json.getJSONObject("locations");
-                String startLocation = locations.getString("start_location");
-
-                if (startLocation.equals("current_location")){
-                    get_current_weather();
-                }
-                else {
-                    get_location_weather(startLocation);
-                }
-
-            } catch (IOException e) {
-                Log.e("TAG", "Error: " + e);
-            } catch (JSONException e) {
-                Log.e("TAG", "Error: " + e);
+            }
+            else {
+                get_location_weather(return_city);
             }
         }
         else {

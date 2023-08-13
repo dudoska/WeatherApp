@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.weatherappremaster.Activities.LoadActivity;
+import com.example.weatherappremaster.Activities.MoreInfoActivity;
 import com.example.weatherappremaster.Activities.SettingsActivity;
 import com.example.weatherappremaster.Classes.City;
 import com.example.weatherappremaster.Classes.ForecastData;
@@ -71,7 +72,18 @@ public class SlideshowFragment extends Fragment {
                 new MyTask().execute();
             }
         });
-        
+
+        binding.scLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String name = adapterView.getItemAtPosition(i).toString();
+                Intent intent = new Intent(SlideshowFragment.this.getActivity(), LoadActivity.class);
+                intent.putExtra("return_city", name);
+                onDestroyView();
+                startActivity(intent);
+            }
+        });
+
         return root;
     }
 
