@@ -50,7 +50,7 @@ import java.util.Map;
 
 public class LoadActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
-    private String TOKEN = "ae8905d694e64e0c8dc152219231007";
+    private String TOKEN = "a990347da6834ecbb7f122240232008";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -56,7 +56,7 @@ import java.util.Scanner;
 
 public class SlideshowFragment extends Fragment {
     private FragmentSlideshowBinding binding;
-    private String TOKEN = "ae8905d694e64e0c8dc152219231007";
+    private String TOKEN = "a990347da6834ecbb7f122240232008";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         SlideshowViewModel slideshowViewModel = new ViewModelProvider(this).get(SlideshowViewModel.class);
