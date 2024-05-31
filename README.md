@@ -1,4 +1,4 @@
-# ☁️ WeatherApp
+# WeatherApp
 
 ![Weather App Logo](https://github.com/dudoska/WeatherApp/blob/main/app/src/main/res/drawable/logo.png?raw=true)
 
