@@ -11,7 +11,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -46,11 +45,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 
 public class LoadActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
-    private String TOKEN = "a990347da6834ecbb7f122240232008";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +118,7 @@ public class LoadActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + location + "&days=7&aqi=no&alerts=no");
+                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + getString(R.string.api_key) + "&q=" + location + "&days=7&aqi=no&alerts=no");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
 
@@ -171,7 +168,7 @@ public class LoadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + coordination + "&days=7&aqi=no&alerts=no");
+                                        URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + getString(R.string.api_key) + "&q=" + coordination + "&days=7&aqi=no&alerts=no");
                                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                                         connection.setRequestMethod("GET");
 

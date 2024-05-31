@@ -26,6 +26,7 @@ import com.example.weatherappremaster.Activities.SettingsActivity;
 import com.example.weatherappremaster.Classes.City;
 import com.example.weatherappremaster.Classes.ForecastData;
 import com.example.weatherappremaster.MainActivity;
+import com.example.weatherappremaster.R;
 import com.example.weatherappremaster.databinding.FragmentSlideshowBinding;
 import com.example.weatherappremaster.ui.home.HomeFragment;
 import com.google.gson.Gson;
@@ -56,7 +57,6 @@ import java.util.Scanner;
 
 public class SlideshowFragment extends Fragment {
     private FragmentSlideshowBinding binding;
-    private String TOKEN = "a990347da6834ecbb7f122240232008";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         SlideshowViewModel slideshowViewModel = new ViewModelProvider(this).get(SlideshowViewModel.class);
@@ -144,7 +144,7 @@ public class SlideshowFragment extends Fragment {
             String name = binding.cityED.getText().toString();
             if (!name.equals("")){
                 try {
-                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + TOKEN + "&q=" + name + "&aqi=no");
+                    URL url = new URL("https://api.weatherapi.com/v1/forecast.json?key=" + getString(R.string.api_key) + "&q=" + name + "&aqi=no");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
 
